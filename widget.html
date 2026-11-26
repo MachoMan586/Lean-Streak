@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Lean Streak Widget</title>
+<meta name="theme-color" content="#f0284a">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root{--brand:#f0284a;--brand-soft:#fde8ec;--bg:#f5f5f7;--surface:#fff;--ink:#16161d;--muted:#72727f;--line:#ebebf0;color-scheme:light;
+  --font-display:"Poppins","Segoe UI",system-ui,sans-serif;--font-body:"Inter",system-ui,-apple-system,sans-serif}
+@media (prefers-color-scheme: dark){:root{--bg:#0e0e12;--surface:#18181e;--ink:#f3f3f6;--muted:#a0a0ad;--line:#26262e;--brand-soft:#3a1620;color-scheme:dark}}
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5}
+.band{background:var(--brand);color:#fff;margin-top:calc(-1 * env(safe-area-inset-top,0px));padding-top:calc(env(safe-area-inset-top,0px) + 20px);padding-bottom:22px;border-radius:0 0 26px 26px}
+.inner{max-width:480px;margin:0 auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+h1{font-family:var(--font-display);font-size:28px;font-weight:800;margin:0;line-height:1.15}
+.band p{margin:4px 0 0;opacity:.92}
+main{display:flex;flex-direction:column;gap:16px;padding-block:18px 40px}
+.card{background:var(--surface);border-radius:20px;padding:16px;box-shadow:0 2px 10px rgba(22,22,29,.06);display:flex;flex-direction:column;gap:12px}
+h2{font-family:var(--font-display);font-size:18px;margin:0}
+label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:var(--muted)}
+input{font:inherit;font-size:16px;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink)}
+input:focus{outline:none;border-color:var(--brand)}
+.btn{border:0;background:var(--brand);color:#fff;padding:15px;border-radius:14px;font-weight:600;font-size:16px;cursor:pointer;font-family:inherit}
+.btn:active{opacity:.85}
+.msg{font-size:14px;color:var(--brand);font-weight:600;min-height:1.2em;margin:0}
+textarea{font:12px ui-monospace,Menlo,monospace;width:100%;height:120px;border:1.5px solid var(--line);border-radius:12px;padding:10px;background:var(--bg);color:var(--ink)}
+ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px}
+ol li::marker{color:var(--brand);font-weight:700}
+.note{font-size:13px;color:var(--muted);margin:0}
+b{font-weight:600}
+</style>
+</head>
+<body>
+<header class="band"><div class="inner">
+  <h1>Home screen widget</h1>
+  <p>Shows today's workout and your daily habits</p>
+</div></header>
+<main class="inner">
+  <section class="card">
+    <h2>1. Copy the widget code</h2>
+    <label for="prot">Your protein goal (g a day, from your plan)
+      <input id="prot" type="number" inputmode="numeric" min="50" max="200" value="100">
+    </label>
+    <button class="btn" id="copy" type="button">Copy widget code</button>
+    <p class="msg" id="msg" aria-live="polite"></p>
+    <textarea id="out" readonly hidden aria-label="Widget code"></textarea>
+  </section>
+
+  <section class="card">
+    <h2>2. Paste it into Scriptable</h2>
+    <ol>
+      <li>Get <b>Scriptable</b> from the App Store (free).</li>
+      <li>Open Scriptable and tap <b>+</b> in the top right.</li>
+      <li>Tap the empty page and choose <b>Paste</b>.</li>
+      <li>Tap <b>Untitled Script</b> at the top and rename it <b>Lean Streak</b>.</li>
+      <li>Tap <b>Done</b>.</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2>3. Add the widget</h2>
+    <ol>
+      <li>Go to your home screen and press and hold an empty spot until the apps wiggle.</li>
+      <li>Tap <b>Edit</b> (top left), then <b>Add Widget</b>.</li>
+      <li>Search for <b>Scriptable</b>, pick the <b>medium</b> size (swipe to it), and tap <b>Add Widget</b>.</li>
+      <li>Tap the new blank widget (still wiggling). For <b>Script</b>, choose <b>Lean Streak</b>.</li>
+      <li>Tap outside the box, then <b>Done</b>. Drag it next to your Lean Streak app icon.</li>
+    </ol>
+    <p class="note">The widget updates itself each day. It can't show your streak or check-offs, because iPhone keeps Lean Streak's data private to the app, so log those in the app. Tapping the widget opens Scriptable, not Lean Streak.</p>
+  </section>
+</main>
+
+<script type="text/plain" id="code">// Lean Streak widget for Scriptable
+// Shows today's workout and your daily habits. Updates every day.
+const PROTEIN_GOAL = __PROTEIN__; // grams a day, from your plan
+
+const SPLIT = {
+  1: { name: "Upper A", ex: ["Dumbbell bench press 3×8–10", "Lat pulldown 3×8–10", "Shoulder press 3×10", "Dumbbell row 3×10", "Bicep curls 2×12", "Tricep pushdowns 2×12"] },
+  2: { name: "Lower A", ex: ["Goblet squat 3×8–10", "Romanian deadlift 3×10", "Walking lunges 2×10/leg", "Leg curl 2×12", "Plank 3×30–45s"] },
+  4: { name: "Upper B", ex: ["Incline DB press 3×10", "Seated cable row 3×10", "Push-ups 3×max", "Lateral raises 3×12–15", "Face pulls 2×15", "Hammer curls 2×12"] },
+  5: { name: "Lower B", ex: ["Leg press 3×10–12", "Hip thrust 3×10", "Step-ups 2×10/leg", "Calf raises 3×15", "Dead bugs 3×10/side"] }
+};
+const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const WHITE = Color.white();
+const SOFT = new Color("#ffffff", 0.8);
+const FAINT = new Color("#ffffff", 0.6);
+
+const now = new Date();
+const dow = now.getDay();
+const session = SPLIT[dow];
+const family = config.widgetFamily || "medium";
+
+function nextLift(from) {
+  for (let i = 1; i <= 7; i++) { const d = (from + i) % 7; if (SPLIT[d]) return d; }
+  return 1;
+}
+function txt(stack, s, font, color, lines) {
+  const t = stack.addText(s);
+  t.font = font; t.textColor = color || WHITE;
+  t.lineLimit = lines || 1; t.minimumScaleFactor = 0.75;
+  return t;
+}
+function icon(stack, name, size, color) {
+  const sym = SFSymbol.named(name) || SFSymbol.named("circle.fill");
+  if (!sym) return null;
+  sym.applyFont(Font.systemFont(size));
+  const img = stack.addImage(sym.image);
+  img.imageSize = new Size(size, size); img.tintColor = color || WHITE;
+  return img;
+}
+
+const w = new ListWidget();
+const g = new LinearGradient();
+g.colors = [new Color("#ff5a72"), new Color("#d6173f")];
+g.locations = [0, 1];
+g.startPoint = new Point(0, 0); g.endPoint = new Point(1, 1);
+w.backgroundGradient = g;
+w.setPadding(14, 15, 14, 15);
+
+// Header: flame + name + day
+const head = w.addStack(); head.centerAlignContent();
+icon(head, "flame.fill", 13);
+head.addSpacer(4);
+txt(head, "LEAN STREAK", Font.heavySystemFont(11), SOFT);
+head.addSpacer();
+txt(head, DAYS[dow].slice(0, 3).toUpperCase(), Font.semiboldSystemFont(11), SOFT);
+w.addSpacer(family === "small" ? 8 : 6);
+
+const title = session ? session.name : (dow === 3 ? "Rest day" : "Active day");
+const subtitle = session
+  ? session.ex.length + " exercises"
+  : (dow === 3 ? "30–45 min walk or bike ride" : "Play a sport or go for a hike");
+const next = SPLIT[nextLift(dow)];
+const nextLine = "Next lift: " + DAYS[nextLift(dow)] + " · " + next.name;
+
+const habits = [
+  [session ? "figure.strengthtraining.traditional" : "figure.walk", session ? "Workout" : "Walk or sport"],
+  ["shoeprints.fill", "8,000 steps"],
+  ["fork.knife", PROTEIN_GOAL + " g protein"],
+  ["drop.fill", "Water, not soda"],
+  ["moon.fill", "8+ hrs sleep"]
+];
+function habitList(stack, count, size) {
+  habits.slice(0, count).forEach((h, i) => {
+    if (i) stack.addSpacer(3);
+    const row = stack.addStack(); row.centerAlignContent();
+    icon(row, "circle", size - 2, FAINT);
+    row.addSpacer(5);
+    txt(row, h[1], Font.mediumSystemFont(size), WHITE);
+  });
+}
+
+if (family === "small") {
+  txt(w, title, Font.heavySystemFont(22), WHITE);
+  txt(w, subtitle, Font.mediumSystemFont(12), SOFT, 2);
+  w.addSpacer();
+  txt(w, session ? "Check off 3 of 5 habits" : nextLine, Font.semiboldSystemFont(11), SOFT, 2);
+} else if (family === "large") {
+  txt(w, title, Font.heavySystemFont(26), WHITE);
+  txt(w, session ? subtitle : subtitle + " · " + nextLine, Font.mediumSystemFont(13), SOFT, 2);
+  w.addSpacer(10);
+  if (session) {
+    session.ex.forEach((e, i) => {
+      if (i) w.addSpacer(4);
+      const row = w.addStack(); row.centerAlignContent();
+      txt(row, String(i + 1), Font.heavySystemFont(13), FAINT);
+      row.addSpacer(8);
+      txt(row, e, Font.mediumSystemFont(14), WHITE);
+    });
+    w.addSpacer(12);
+  }
+  txt(w, "TODAY'S HABITS · 3 OF 5 KEEPS YOUR STREAK", Font.boldSystemFont(10), SOFT);
+  w.addSpacer(6);
+  const hs = w.addStack(); hs.layoutVertically();
+  habitList(hs, 5, 13);
+  w.addSpacer();
+} else {
+  const body = w.addStack();
+  const left = body.addStack(); left.layoutVertically();
+  txt(left, title, Font.heavySystemFont(22), WHITE);
+  txt(left, subtitle, Font.mediumSystemFont(12), SOFT);
+  left.addSpacer(6);
+  if (session) {
+    session.ex.slice(0, 3).forEach((e) => { txt(left, "· " + e.replace(/ \d.*$/, ""), Font.mediumSystemFont(11), SOFT); });
+  } else {
+    txt(left, nextLine, Font.mediumSystemFont(11), SOFT, 2);
+  }
+  body.addSpacer();
+  const right = body.addStack(); right.layoutVertically();
+  habitList(right, 5, 11);
+}
+
+// Refresh just after midnight so the day changes.
+const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 5);
+w.refreshAfterDate = tomorrow;
+
+if (config.runsInWidget) {
+  Script.setWidget(w);
+} else {
+  await w.presentMedium();
+}
+Script.complete();
+</script>
+<script>
+(function(){
+  var tpl=document.getElementById('code').textContent;
+  var prot=document.getElementById('prot'),msg=document.getElementById('msg'),out=document.getElementById('out');
+  try{var s=JSON.parse(localStorage.getItem('lean-streak')||'null');if(s&&s.profile&&s.profile.weightLb){prot.value=Math.round(Math.min(160,Math.max(70,s.profile.weightLb*0.8))/5)*5}}catch(e){}
+  function code(){var p=Math.round(Number(prot.value));if(!(p>=50&&p<=200))p=100;return tpl.replace('__PROTEIN__',String(p))}
+  function showBox(){out.hidden=false;out.value=code();out.focus();out.select();out.setSelectionRange(0,out.value.length);msg.textContent='Press and hold in the box and tap Copy.'}
+  document.getElementById('copy').addEventListener('click',function(){
+    var c=code();
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(c).then(function(){msg.textContent='Copied! Now open Scriptable.';out.hidden=true},showBox);
+    }else showBox();
+  });
+})();
+</script>
+</body>
+</html>
