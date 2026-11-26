@@ -11,7 +11,7 @@ You need to put these files online once (free), then add the app to your home sc
 | `index.html` | The whole app |
 | `manifest.webmanifest` | The app's name, colors and icon |
 | `sw.js` | Lets the app work offline |
-| `icons/` | The app icon in each size the phone needs |
+| `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` | The app icon in each size the phone needs |
 
 ## Step 1: Put it online with GitHub Pages (free, about 10 minutes)
 
@@ -21,7 +21,7 @@ GitHub accounts are for ages 13 and up. Ask a parent to help if you need it.
 2. Click the **+** in the top right, then **New repository**.
 3. Name it `lean-streak`, set it to **Public**, and click **Create repository**.
 4. On the next page, click **uploading an existing file**.
-5. Drag in **everything in this folder**: `index.html`, `manifest.webmanifest`, `sw.js`, `README.md` and the whole `icons` folder. Then click **Commit changes**.
+5. Select **all 8 files in this folder** (click one, then press Ctrl+A) and drag them in together. Then click **Commit changes**.
 6. Go to **Settings**, then **Pages** in the left menu.
 7. Under **Branch**, pick **main** and **/ (root)**, then click **Save**.
 8. Wait a minute and refresh. The page shows your app's address, like `https://YOUR-NAME.github.io/lean-streak/`.
@@ -52,7 +52,7 @@ On the **Progress** tab, tap **Copy backup** every few weeks and paste it into t
 ## Updating the app later
 
 1. Upload the changed files to your GitHub repository the same way (they replace the old ones).
-2. Open `sw.js` and change `lean-streak-v1` to `lean-streak-v2` (then v3, and so on), and upload that too. This tells phones to grab the new version.
+2. Open `sw.js` and bump the version at the top (for example `lean-streak-v2` to `lean-streak-v3`), and upload that too. This tells phones to grab the new version.
 3. Close and reopen the app on your phone. You may need to do it twice.
 
 ## About the coach

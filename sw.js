@@ -1,13 +1,13 @@
 // Lean Streak offline support: keeps the app working with no internet.
 // Bump VERSION whenever you upload changed files so phones pick up the update.
-const VERSION = 'lean-streak-v1';
+const VERSION = 'lean-streak-v2';
 const APP_FILES = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/apple-touch-icon.png'
+  './icon-192.png',
+  './icon-512.png',
+  './apple-touch-icon.png'
 ];
 
 self.addEventListener('install', (event) => {
