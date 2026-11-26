@@ -1,6 +1,6 @@
 // Lean Streak offline support: keeps the app working with no internet.
 // Bump VERSION whenever you upload changed files so phones pick up the update.
-const VERSION = 'lean-streak-v3';
+const VERSION = 'lean-streak-v4';
 const APP_FILES = [
   './',
   './index.html',
