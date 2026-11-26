@@ -262,6 +262,16 @@ select{font:inherit;font-size:16px;padding:12px 14px;border:1.5px solid var(--li
 .linkbtn{border:0;background:none;color:var(--brand);font-weight:600;cursor:pointer;padding:0;font-size:13px;white-space:nowrap}
 #planCard{display:flex;flex-direction:column;gap:12px}
 .chips-row{display:flex;flex-wrap:wrap;gap:8px;align-self:flex-start}
+.ci-hint{display:block;font-size:11px;font-weight:600;color:var(--brand);text-align:right}
+.ci-edit{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px;border-top:1px solid var(--line);background:var(--brand-soft)}
+.ci-edit:first-child{border-top:0}
+.ci-edit-title{grid-column:1/-1;font-weight:600}
+.ci-edit label{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--muted);font-weight:600}
+.ci-edit input{background:var(--surface)}
+.ci-edit .btn,.ci-edit .err,.ci-btns{grid-column:1/-1}
+.ci-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ci-btns .btn{padding:12px;font-size:14px;grid-column:auto}
+.btn.danger{color:var(--brand)}
 .topics{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
 .topics::-webkit-scrollbar{display:none}
 .topics .qchip{white-space:nowrap;flex:none;padding:7px 12px;font-size:13px}
@@ -859,14 +869,50 @@ textarea{font:inherit;font-size:14px;padding:10px 12px;border:1.5px solid var(--
     var hist=el('ciHistory');hist.textContent='';
     el('histHead').hidden=hist.hidden=!cis.length;
     cis.slice(-10).reverse().forEach(function(c){
-      var end=mk('span','end',c.weight.toFixed(1)+' lb');
       var d=fromKey(c.date);
-      var r=mk('div','row');
+      if(ciEdit===c.date){hist.appendChild(ciEditRow(c,d));return}
+      var r=mk('button','row link');r.type='button';
+      r.setAttribute('aria-label','Edit check-in from '+fmt(d,{month:'long',day:'numeric'}));
       var tile=mk('span','tile',String(d.getDate()));
       var tx=mk('span','txt');tx.appendChild(mk('div','t',fmt(d,{weekday:'long',month:'short',day:'numeric'})));tx.appendChild(mk('div','s',c.waist!=null?'Waist '+c.waist.toFixed(2)+' in':'No waist logged'));
+      var end=mk('span','end');end.appendChild(document.createTextNode(c.weight.toFixed(1)+' lb'));end.appendChild(mk('span','ci-hint','Edit'));
       r.appendChild(tile);r.appendChild(tx);r.appendChild(end);
+      r.addEventListener('click',function(){ciEdit=c.date;ciDelArmed=false;render();var w=el('ceW');if(w)w.focus()});
       hist.appendChild(r);
     });
+    if(cis.length)hist.appendChild(mk('div','row empty','Tap a check-in to change or delete it.'));
+  }
+  // Edit one check-in in place: change weight or waist, or delete it (tap Delete twice).
+  var ciEdit=null,ciDelArmed=false;
+  function ciEditRow(c,d){
+    var box=mk('div','ci-edit');
+    box.appendChild(mk('div','ci-edit-title','Edit '+fmt(d,{weekday:'long',month:'short',day:'numeric'})));
+    var lw=mk('label');lw.setAttribute('for','ceW');lw.appendChild(document.createTextNode('Weight (lb)'));
+    var iw=mk('input');iw.id='ceW';iw.type='number';iw.inputMode='decimal';iw.step='0.1';iw.value=String(c.weight);lw.appendChild(iw);
+    var lz=mk('label');lz.setAttribute('for','ceZ');lz.appendChild(document.createTextNode('Waist (in)'));
+    var iz=mk('input');iz.id='ceZ';iz.type='number';iz.inputMode='decimal';iz.step='0.25';iz.placeholder='Optional';iz.value=c.waist!=null?String(c.waist):'';lz.appendChild(iz);
+    var err=mk('p','err');err.hidden=true;
+    var save=mk('button','btn','Save');save.type='button';
+    var row=mk('div','ci-btns');
+    var cancel=mk('button','btn ghost','Cancel');cancel.type='button';
+    var del=mk('button','btn ghost danger',ciDelArmed?'Tap again to delete':'Delete');del.type='button';
+    row.appendChild(cancel);row.appendChild(del);
+    save.addEventListener('click',function(){
+      var w=parseFloat(iw.value),zr=iz.value.trim(),z=zr?parseFloat(zr):null;
+      if(!(w>=60&&w<=400)){err.textContent='Enter your weight in pounds, like 139.5.';err.hidden=false;return}
+      if(z!==null&&!(z>=15&&z<=60)){err.textContent='Enter your waist in inches, like 30, or leave it blank.';err.hidden=false;return}
+      var it=state.checkins.filter(function(x){return x.date===c.date})[0];
+      if(it){it.weight=Math.round(w*10)/10;it.waist=z===null?null:Math.round(z*100)/100}
+      ciEdit=null;ciDelArmed=false;queueSave();render();
+    });
+    cancel.addEventListener('click',function(){ciEdit=null;ciDelArmed=false;render()});
+    del.addEventListener('click',function(){
+      if(!ciDelArmed){ciDelArmed=true;del.textContent='Tap again to delete';return}
+      state.checkins=state.checkins.filter(function(x){return x.date!==c.date});
+      ciEdit=null;ciDelArmed=false;queueSave();render();
+    });
+    box.appendChild(lw);box.appendChild(lz);box.appendChild(err);box.appendChild(save);box.appendChild(row);
+    return box;
   }
 
   function renderMeals(){
